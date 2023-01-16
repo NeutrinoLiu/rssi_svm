@@ -3,22 +3,25 @@ import numpy as np
 from logging import debug, info, warning, error, critical
 import config, subprocess, json, time
 
-# logging system
+# logging system     ==========================================================================================
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
 DATE_FORMAT = "%H:%M:%S"
 lg.basicConfig(level = config.LOGGING, format=LOG_FORMAT, datefmt=DATE_FORMAT)
 
-# wifi rssi streamer
+# wifi rssi streamer ==========================================================================================
 class getFileStreamer():
     def __init__(self, filelist):
-        all = []
+        self.all = []
         for fn in filelist:
             with open(fn, "r") as f:
                 jarray = json.load(f)
-            all += jarray
-        self.alliter = iter(all)
+            self.all += jarray
+        self.alliter = iter(self.all)
     def __call__(self):
         return next(self.alliter)
+    def extract_dataset(self):
+        return list(map(json2vector, self.all))
+
 
 def getRssiStreamer(): # pretend to be a class, but just return different function
     if  config.PLATFORM ==  "mac" :
@@ -54,19 +57,31 @@ def rssi_streamer_mac(): # return current rssi through airport
 
     return ret
 
-# json object to array input
-def json2vector(obj):
-    fp = obj["fingerprint"]
-    if len(fp) == 0:
-        warning("empty fingerprint")
+# json object to array input =====================================================================================
+def apply_filter(triad_list, ap_filter):
+    if ap_filter == None:
+        return triad_list
+    ret_list = []
+    for triad in triad_list:
+        if triad[1] in ap_filter:
+            ret_list.append(triad)
+    return ret_list
+def json2vector(obj, ap_filter = None, standardization = True):
+    if len(obj["fingerprint"]) == 0:
+        warning("no fingerprint if fetched")
         return None, None
-    if not obj["indoor"]:
+    fp = apply_filter(obj["fingerprint"], ap_filter)
+
+    if obj["indoor"] == None:
         y = None
     else:
         if obj["indoor"] == 1:
             y = 1
         elif obj["indoor"] == 0:
             y = -1
+        else:
+            warning("unrecognized indoor label")
+
     x = [0] * (config.MAX_RSSI - config.MIN_RSSI + 1)
     # x[0]-AP#ofMIN_RSSI x[-1]-AP#ofMAX_RSSI 
     for triad in fp:
@@ -79,8 +94,10 @@ def json2vector(obj):
         else: 
             idx = triad[2] - config.MIN_RSSI
         x[idx] += 1
+    
     x = np.array(x)
-    x = x / np.sum(x)
+    if standardization:
+        x = x / np.sum(x)
     # debug(x, y)
     y = np.array([y])
     return x, y

@@ -7,11 +7,13 @@ from time import time
 # file stream test
 streamer = getFileStreamer(config.OFFLINE_FILE)
 # streamer = getRssiStreamer()
-while True:
-    st = time()
-    ret = streamer()
-    # et = time()
-    # print(et-st)
-    print(json2vector(ret))
-    sleep(1)
-# 
+# while True:
+#     st = time()
+#     ret = streamer()
+#     # et = time()
+#     # print(et-st)
+#     print(json2vector(ret))
+#     sleep(1)
+# # 
+
+print(streamer.extract_dataset())
