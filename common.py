@@ -2,7 +2,13 @@ import logging as lg
 import numpy as np
 from logging import debug, info, warning, error, critical
 import config, subprocess, json, time
+from model import Model
 
+# utils
+def b2s(indoor):
+    return "[indoor]" if indoor == True else "[outdoor]"
+def b2v(indoor):
+    return 1 if indoor == True else 0
 
 # logging system     ==========================================================================================
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -82,6 +88,7 @@ def json2vector(obj, ap_filter = None, standardization = True):
             y = -1
         else:
             warning("unrecognized indoor label")
+            y = None
 
     x = [0] * config.RSSI_WIDTH
     # x[0]-AP#ofMIN_RSSI x[-1]-AP#ofMAX_RSSI 
@@ -102,5 +109,3 @@ def json2vector(obj, ap_filter = None, standardization = True):
     # debug(x, y)
     y = np.array([y])
     return x, y
-
-# SVM model definition

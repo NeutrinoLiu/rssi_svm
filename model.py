@@ -5,8 +5,10 @@ class Model():
     def __init__(self):
         self.w = [.0] * (config.RSSI_WIDTH)
         self.b = [.0] * (config.RSSI_WIDTH)
-    def __call__(self, input):
+    def __call__(self, rssi_vector):
         return np.array([1.0])
+    def train(self, dataset):
+        pass
     def load(self, weight_file):
         with open(weight_file, "r") as f:
             para = json.load(f)
