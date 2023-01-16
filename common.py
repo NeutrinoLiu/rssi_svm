@@ -1,7 +1,7 @@
 import logging as lg
 import numpy as np
 from logging import debug, info, warning, error, critical
-import config, subprocess, json, time
+import config, subprocess, json, time, sys
 from model import Model
 
 # utils
@@ -9,6 +9,8 @@ def b2s(indoor):
     return "[indoor]" if indoor == True else "[outdoor]"
 def b2v(indoor):
     return 1 if indoor == True else 0
+def v2s(indoor):
+    return 1 if indoor == 1 else -1
 
 # logging system     ==========================================================================================
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"

@@ -9,7 +9,9 @@ print(config.PROJECT_NAME + " - trainer")
 INDENT = "                "
 
 if config.OFFLINE:
-    rssi_reader = getFileStreamer(config.OFFLINE_FILE)
+    if len(sys.argv) > 1:
+        rssi_reader = getFileStreamer([sys.argv[1]])
+    else: rssi_reader = getFileStreamer(config.OFFLINE_FILES)
 else: rssi_reader = getRssiStreamer()
 
 # 1 record rssi data and manual labeling
