@@ -10,7 +10,7 @@ RSSI_MIN = -99
 RSSI_WIDTH = RSSI_MAX - RSSI_MIN + 1
 LOGGING = CRITICAL
 
-PARA_FILE = "svm_weight.pickle"
+PARA_FILE = "svm.pickle"
 
 PLATFORM = "mac"
 # PLATFORM = "win"
