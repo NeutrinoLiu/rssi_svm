@@ -1,6 +1,7 @@
 import logging as lg
+import numpy as np
 from logging import debug, info, warning, error, critical
-import config, subprocess, json
+import config, subprocess, json, time
 
 # logging system
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -26,10 +27,10 @@ def getRssiStreamer(): # pretend to be a class, but just return different functi
         critical("platform not recognized")
         return None
 
-def rssi_streamer_mac(): # return current rssi
+def rssi_streamer_mac(): # return current rssi through airport 
     AIRPORT_PATH = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
     scan_cmd = subprocess.Popen(['sudo', AIRPORT_PATH, '-s'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    scan_out, scan_err = scan_cmd.communicate()
+    scan_out, scan_err = scan_cmd.communicate() # communicate will wait for subprocess exit
     scan_out_lines = str(scan_out).split("\\n")[1:-1]
     triad_list = []
     for l in scan_out_lines:
@@ -41,8 +42,47 @@ def rssi_streamer_mac(): # return current rssi
         rssi = int(l[indexOfMAC + 18:indexOfMAC + 22])
         triad_list.append([name, mac, rssi])
     triad_list.sort(key = lambda x: x[0])
-    return triad_list
+
+    # a temporary wrapper to add dummy meta data
+    ret = {
+        "indoor" : 1,
+        "locaton" : 0,
+        "timestamp" : time.time(),
+        "counter" : len(triad_list),
+        "fingerprint" : triad_list,
+    }
+
+    return ret
 
 # json object to array input
+def json2vector(obj):
+    fp = obj["fingerprint"]
+    if len(fp) == 0:
+        warning("empty fingerprint")
+        return None, None
+    if not obj["indoor"]:
+        y = None
+    else:
+        if obj["indoor"] == 1:
+            y = 1
+        elif obj["indoor"] == 0:
+            y = -1
+    x = [0] * (config.MAX_RSSI - config.MIN_RSSI + 1)
+    # x[0]-AP#ofMIN_RSSI x[-1]-AP#ofMAX_RSSI 
+    for triad in fp:
+        if triad[2] > config.MAX_RSSI:
+            warning("RSSI reading overflow, wrapped")
+            idx = -1
+        elif triad[2] < config.MIN_RSSI:
+            warning("RSSI reading downflow, wrapped")
+            idx = 0
+        else: 
+            idx = triad[2] - config.MIN_RSSI
+        x[idx] += 1
+    x = np.array(x)
+    x = x / np.sum(x)
+    # debug(x, y)
+    y = np.array([y])
+    return x, y
 
 # SVM model definition
