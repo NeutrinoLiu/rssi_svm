@@ -4,28 +4,38 @@ from common import *
 import datetime
 from pynput import keyboard
 
+OFFLINE = False
+OFFLINE = True
+
+
 print(config.PROJECT_NAME + " - trainer component")
+INDENT = "                "
+
+if OFFLINE:
+    rssi_reader = getFileStreamer(config.OFFLINE_FILE)
+else: rssi_reader = getRssiStreamer()
 
 # 1 record rssi data and manual labeling
 # 2 perform svm training
 # 3 stores to svm_weight.json
 
-info("step 1 - training set sampling") # =============================================
+info("[step 1] sample training dataset") # =============================================
 
-indent = "                "
-label = input(indent + "are you currently indoor (y/n) ? ").capitalize()
-while label not in ["Y", "N", "YES", "NO"]:
-    print(indent + "unrecognized answer")
-    label = input(indent + "are you currently indoor (y/n) ? ").capitalize()
-if label in ["Y", "YES"]:
-    indoor = True
+if not OFFLINE: # online mode, need to init with current label
+    ans = input(INDENT + "are you currently indoor (y/n) ? ").capitalize()
+    while ans not in ["Y", "N", "YES", "NO"]:
+        print(INDENT + "unrecognized answer")
+        ans = input(INDENT + "are you currently indoor (y/n) ? ").capitalize()
+    if ans in ["Y", "YES"]:
+        indoor = True
+    else:
+        indoor = False
 else:
     indoor = False
 
-info("current label is {}".format(b2s(indoor)))
-print(indent + "switch by [← indoor, → outdoor], finish by [ESC]")
+info("init label as {}".format(b2s(indoor)))
+print(INDENT + "switch by [← indoor, → outdoor], finish by [ESC]")
 info("start wifi scanning, root permission might need")
-rssi_reader = getRssiStreamer()
 sample = rssi_reader()
 
 term_flag = False
@@ -62,13 +72,14 @@ try:
         if sample["counter"] == 0:
             sample = rssi_reader()
             continue
-        sample["indoor"] = b2v(indoor)
+        if sample["indoor"] == None:
+            sample["indoor"] = b2v(indoor)
         record.append(sample)
-        info("{} AP scanned; labeled as {}".format(sample["counter"], b2s(indoor)) + 
+        info("{} AP scanned; labeled as {}".format(sample["counter"], b2s(sample["indoor"])) + 
         "; press ESC to finish")
         sample = rssi_reader()
-except KeyboardInterrupt:
-    info("keyboard interrupt detected")
+except (KeyboardInterrupt, StopIteration):
+    info("Interrupt detected")
     listener.stop()
 
 target_file = "log/record_{}.json".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
@@ -76,7 +87,7 @@ with open(target_file, "w+") as f:
     json.dump(record, f, indent = 1)
 info("training set stored to {}, {} records in total".format(target_file, len(record)))
 
-info("step 2 - train SVM with dataset") # =============================================
+info("[step 2] train SVM with dataset") # =============================================
 model = Model()
 dataset = list(map(json2vector, record)) 
 # [ (x, y),
@@ -84,7 +95,7 @@ dataset = list(map(json2vector, record))
 model.train(dataset)
 
 model.dump(config.PARA_FILE)
-info("step 3 - trained SVM model has been saved to {}".format(config.PARA_FILE)) # ====
-print(indent + "plz run judger with trained model")
+info("[step 3] save trained SVM model to {}".format(config.PARA_FILE)) # ====
+print(INDENT + "plz run judger with trained model")
 
 
