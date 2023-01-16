@@ -6,8 +6,4 @@ print(config.PROJECT_NAME + " - trainer component")
 
 # a rssi recorder thread
 
-
-
-
-
 # a trainer

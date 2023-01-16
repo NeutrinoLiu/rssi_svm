@@ -3,6 +3,7 @@ import numpy as np
 from logging import debug, info, warning, error, critical
 import config, subprocess, json, time
 
+
 # logging system     ==========================================================================================
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
 DATE_FORMAT = "%H:%M:%S"
@@ -48,8 +49,8 @@ def rssi_streamer_mac(): # return current rssi through airport
 
     # a temporary wrapper to add dummy meta data
     ret = {
-        "indoor" : 1,
-        "locaton" : 0,
+        "indoor" : None,
+        "location" : "unknown",
         "timestamp" : time.time(),
         "counter" : len(triad_list),
         "fingerprint" : triad_list,
@@ -82,17 +83,17 @@ def json2vector(obj, ap_filter = None, standardization = True):
         else:
             warning("unrecognized indoor label")
 
-    x = [0] * (config.MAX_RSSI - config.MIN_RSSI + 1)
+    x = [0] * config.RSSI_WIDTH
     # x[0]-AP#ofMIN_RSSI x[-1]-AP#ofMAX_RSSI 
     for triad in fp:
-        if triad[2] > config.MAX_RSSI:
+        if triad[2] > config.RSSI_MAX:
             warning("RSSI reading overflow, wrapped")
             idx = -1
-        elif triad[2] < config.MIN_RSSI:
+        elif triad[2] < config.RSSI_MIN:
             warning("RSSI reading downflow, wrapped")
             idx = 0
         else: 
-            idx = triad[2] - config.MIN_RSSI
+            idx = triad[2] - config.RSSI_MIN
         x[idx] += 1
     
     x = np.array(x)
