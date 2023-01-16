@@ -4,14 +4,11 @@ from common import *
 import datetime
 from pynput import keyboard
 
-OFFLINE = False
-OFFLINE = True
 
-
-print(config.PROJECT_NAME + " - trainer component")
+print(config.PROJECT_NAME + " - trainer")
 INDENT = "                "
 
-if OFFLINE:
+if config.OFFLINE:
     rssi_reader = getFileStreamer(config.OFFLINE_FILE)
 else: rssi_reader = getRssiStreamer()
 
@@ -21,7 +18,7 @@ else: rssi_reader = getRssiStreamer()
 
 info("[step 1] sample training dataset") # =============================================
 
-if not OFFLINE: # online mode, need to init with current label
+if not config.OFFLINE: # online mode, need to init with current label
     ans = input(INDENT + "are you currently indoor (y/n) ? ").capitalize()
     while ans not in ["Y", "N", "YES", "NO"]:
         print(INDENT + "unrecognized answer")

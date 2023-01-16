@@ -1,13 +1,15 @@
 from common import *
 
-print(config.PROJECT_NAME + " - judger component")
+print(config.PROJECT_NAME + " - judger")
 
 model = Model() 
 model.load(config.PARA_FILE)
 info("init SVM model with {}".format(config.PARA_FILE))
 
 info("start wifi scanning, root permission might need")
-rssi_reader = getRssiStreamer()
+if config.OFFLINE:
+    rssi_reader = getFileStreamer(config.OFFLINE_FILE)
+else: rssi_reader = getRssiStreamer()
 
 while True:
     rssi = rssi_reader()
