@@ -74,8 +74,8 @@ try:
         if sample["indoor"] == None:
             sample["indoor"] = b2v(indoor)
         record.append(sample)
-        info("{} AP scanned; labeled as {}".format(sample["counter"], b2s(sample["indoor"])) + 
-        "; press ESC to finish")
+        info("{} AP scanned;\tlabeled as {}".format(sample["counter"], b2s(sample["indoor"])) + 
+        ";\tpress ESC to finish")
         sample = rssi_reader()
 except (KeyboardInterrupt, StopIteration):
     info("Interrupt detected")

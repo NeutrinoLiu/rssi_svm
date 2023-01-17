@@ -10,10 +10,12 @@ class Model():
     def __init__(self):
         self.w = None
         self.b = None
-        self.svc = SVC(kernel=SVM_KERNEL)
+        self.svc = SVC(kernel=SVM_KERNEL, probability=True)
 
     def __call__(self, rssi_vector):
         return self.svc.predict([rssi_vector])
+    def prob(self, rssi_vector):
+        return self.svc.predict_proba([rssi_vector])
 
     def load(self, weight_file):
         with open(weight_file, "rb") as f:
