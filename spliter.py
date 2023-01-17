@@ -1,6 +1,6 @@
 import random, json
 
-ratio = 0.2 # percentage of testset, the rest will be trainset
+ratio = 0.3 # percentage of testset, the rest will be trainset
 
 file = "log/full.json"
 with open(file, "r") as f:
