@@ -2,7 +2,7 @@ import random, json
 
 ratio = 0.3 # percentage of testset, the rest will be trainset
 
-file = "log/full.json"
+file = "raw/full.json"
 with open(file, "r") as f:
     records = json.load(f)
 
