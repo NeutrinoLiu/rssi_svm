@@ -9,7 +9,7 @@ info("init SVM model with {}".format(config.PARA_FILE))
 info("start wifi scanning, root permission might need")
 if config.OFFLINE:
     if len(sys.argv) > 1:
-        rssi_reader = getFileStreamer([sys.argv[1]])
+        rssi_reader = getFileStreamer(sys.argv[1:])
     else: rssi_reader = getFileStreamer(config.OFFLINE_FILES)
 else: rssi_reader = getRssiStreamer()
 
