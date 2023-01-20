@@ -8,10 +8,11 @@ from pynput import keyboard
 print(config.PROJECT_NAME + " - trainer")
 INDENT = "                "
 
-if config.OFFLINE:
-    if len(sys.argv) > 1:
-        rssi_reader = getFileStreamer([sys.argv[1]])
-    else: rssi_reader = getFileStreamer(config.OFFLINE_FILES)
+
+if len(sys.argv) > 1:
+    rssi_reader = getFileStreamer([sys.argv[1]])
+elif config.OFFLINE:
+    rssi_reader = getFileStreamer(config.OFFLINE_FILES)
 else: rssi_reader = getRssiStreamer()
 
 # 1 record rssi data and manual labeling
@@ -20,7 +21,7 @@ else: rssi_reader = getRssiStreamer()
 
 info("[step 1] sample training dataset") # =============================================
 
-if not config.OFFLINE: # online mode, need to init with current label
+if not (config.OFFLINE or len(sys.argv)): # online mode, need to init with current label
     ans = input(INDENT + "are you currently indoor (y/n) ? ").capitalize()
     while ans not in ["Y", "N", "YES", "NO"]:
         print(INDENT + "unrecognized answer")

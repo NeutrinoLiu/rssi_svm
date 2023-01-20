@@ -1,7 +1,5 @@
 from logging import DEBUG, INFO, WARNING, CRITICAL
 
-OFFLINE = True
-
 # model related
 SVM_KERNEL = 'rbf'
 VEC_STD = True
@@ -18,5 +16,6 @@ PLATFORM = "mac"
 # PLATFORM = "win"
 # PLATFORM = "linux"
 
+OFFLINE = False #
 OFFLINE_FILES = ["raw/indoor_A.json", "raw/indoor_B.json", "raw/indoor_C.json", "raw/outdoor.json"]
 # note "indoor" field in json file: 0-outdoor, 1-indoor, null-noRecord
