@@ -2,7 +2,9 @@ from logging import DEBUG, INFO, WARNING, CRITICAL
 
 OFFLINE = True
 
+# model related
 SVM_KERNEL = 'rbf'
+VEC_STD = True
 
 PROJECT_NAME = "RSSI BASED INDOOR/OUTDOOR JUDGER"
 RSSI_MAX = -23

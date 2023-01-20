@@ -10,7 +10,12 @@ def b2s(indoor):
 def b2v(indoor):
     return 1 if indoor == True else 0
 def v2s(indoor):
-    return 1 if indoor == 1 else -1
+    if indoor == 1:
+        return 1
+    elif indoor == 0:
+        return -1
+    elif indoor == None:
+        return None
 
 # logging system     ==========================================================================================
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -75,7 +80,7 @@ def apply_filter(triad_list, ap_filter):
         if triad[1] in ap_filter:
             ret_list.append(triad)
     return ret_list
-def json2vector(obj, ap_filter = None, standardization = True):
+def json2vector(obj, ap_filter = None, standardization = config.VEC_STD):
     if len(obj["fingerprint"]) == 0:
         warning("no fingerprint if fetched")
         return None, None
