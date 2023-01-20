@@ -18,29 +18,34 @@ OO = 0
 IO = 0
 OI = 0
 
+stop_flag = False
 
-while True:
-    try:
-        rssi = rssi_reader()
-    except StopIteration:
-        break
-    if rssi["counter"] == 0:
-        continue
-    predict = model(json2vector(rssi)[0])
-    prob = model.prob(json2vector(rssi)[0])
-    pr = predict[0]
-    gt = v2s(rssi["indoor"])
-    info("{} AP scanned;\tPR:{}\tGT:{}\tconfi:{:.2f} {}".format(rssi["counter"], pr, gt, abs(prob[0][1]-prob[0][0]), "*" if pr != gt else " "))
-    if pr == gt == 1:
-        II += 1
-    elif pr == gt == -1:
-        OO += 1
-    elif pr == 1:
-        OI += 1
-    else: IO += 1
-    
+try:
+    while not stop_flag:
+        try:
+            rssi = rssi_reader()
+        except StopIteration:
+            break
+        if rssi["counter"] == 0:
+            continue
+        predict = model(json2vector(rssi)[0])
+        prob = model.prob(json2vector(rssi)[0])
+        pr = predict[0]
+        gt = v2s(rssi["indoor"])
+        info("{} AP scanned;\tPR:{}\tGT:{}\tconfi:{:.2f} {}".format(rssi["counter"], pr, gt, abs(prob[0][1]-prob[0][0]), "*" if pr != gt else " "))
+        if pr == gt == 1:
+            II += 1
+        elif pr == gt == -1:
+            OO += 1
+        elif pr == 1:
+            OI += 1
+        else: IO += 1
+except KeyboardInterrupt:
+    pass
 
-critical("comprehensive accuracy: {:.4f}".format((II + OO)/(II + OO + IO + OI)))
-critical("indoor correctness: {:.4f}, outdoor correctness: {:.4f}".format(II/(II+IO), OO/(OO+OI)))
+if rssi["indoor"] != None:
+    critical("comprehensive accuracy: {:.4f}".format((II + OO)/(II + OO + IO + OI)))
+    critical("indoor correctness: {:.4f}, outdoor correctness: {:.4f}".format(II/(II+IO), OO/(OO+OI)))
+info("exit judger")
 
 # a tester

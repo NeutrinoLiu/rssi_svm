@@ -21,7 +21,7 @@ else: rssi_reader = getRssiStreamer()
 
 info("[step 1] sample training dataset") # =============================================
 
-if not (config.OFFLINE or len(sys.argv)): # online mode, need to init with current label
+if not (config.OFFLINE or len(sys.argv) > 1): # online mode, need to init with current label
     ans = input(INDENT + "are you currently indoor (y/n) ? ").capitalize()
     while ans not in ["Y", "N", "YES", "NO"]:
         print(INDENT + "unrecognized answer")
